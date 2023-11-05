@@ -2,6 +2,10 @@
 
 namespace App\Providers\Filament;
 
+use Althinect\FilamentSpatieRolesPermissions\FilamentSpatieRolesPermissionsPlugin;
+use App\Filament\Pages\Tenancy\EditShopProfile;
+use App\Filament\Pages\Tenancy\RegisterShop;
+use App\Models\Shop;
 use Filament\Http\Middleware\Authenticate;
 use Filament\Http\Middleware\DisableBladeIconComponents;
 use Filament\Http\Middleware\DispatchServingFilamentEvent;
@@ -25,8 +29,15 @@ class AdminPanelProvider extends PanelProvider
         return $panel
             ->default()
             ->id('admin')
-            ->path('admin')
+            ->path('')
             ->login()
+            ->registration()
+            ->passwordReset()
+            ->emailVerification()
+            ->profile()
+            ->tenant(Shop::class, slugAttribute: 'slug', ownershipRelationship: 'owner')
+            ->tenantRegistration(RegisterShop::class)
+            ->tenantProfile(EditShopProfile::class)
             ->colors([
                 'primary' => Color::Amber,
             ])
