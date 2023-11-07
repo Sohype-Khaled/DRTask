@@ -3,6 +3,7 @@
 namespace App\Filament\Pages\Tenancy;
 
 use App\Models\Shop;
+use Filament\Actions\Action;
 use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Pages\Tenancy\RegisterTenant;
@@ -11,7 +12,7 @@ class RegisterShop extends RegisterTenant
 {
     public static function getLabel(): string
     {
-        return 'Submit';
+        return 'Register Shop';
     }
 
     public function form(Form $form): Form
@@ -60,5 +61,10 @@ class RegisterShop extends RegisterTenant
         return $shop;
     }
 
-
+    public function getRegisterFormAction(): Action
+    {
+        return Action::make('register')
+            ->label('Submit')
+            ->submit('register');
+    }
 }
