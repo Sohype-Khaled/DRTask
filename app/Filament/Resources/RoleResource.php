@@ -26,18 +26,22 @@ class RoleResource extends Resource
     {
         return $form
             ->schema([
-                Forms\Components\TextInput::make('name')
-                    ->label('name')
-                    ->required()
-                    ->maxLength(255),
-                Forms\Components\Grid::make()
-                    ->schema(static::getResourceEntitiesSchema())
-                    ->columns(12),
+                Forms\Components\Section::make('Information')
+                    ->schema([
+                        Forms\Components\TextInput::make('name')
+                            ->label('name')
+                            ->required()
+                            ->maxLength(255)
+                    ]),
+
+                Forms\Components\Section::make('Permissions')
+                    ->schema(self::permissionsSchemaSection())
+
 
             ]);
     }
 
-    public static function getResourceEntitiesSchema(): array
+    public static function permissionsSchemaSection(): array
     {
         $prefixes = collect(config('permissions.prefixes'));
         $inputs = [];
@@ -48,19 +52,12 @@ class RoleResource extends Resource
 
             $options = $prefixes->flatMap(fn($prefix) => ["$model:$prefix" => str($prefix)->headline()]);
 
-            $inputs[] = Forms\Components\Section::make()
-                ->schema([
-                    Forms\Components\CheckboxList::make(str($model)->snake())
-                        ->options($options->toArray())
-                        ->columns(2)
-                        ->searchable()
-                        ->bulkToggleable()
-                        ->statePath('permissions')
-                ])->columnSpan([
-                    'sm' => 12,
-                    'lg' => 6,
-                    'xl' => 4,
-                ]);
+            $inputs[] = Forms\Components\CheckboxList::make(str($model)->snake())
+                ->options($options->toArray())
+                ->columns(4)
+                ->bulkToggleable()
+                ->statePath('permissions');
+
         }
 
         return $inputs;
