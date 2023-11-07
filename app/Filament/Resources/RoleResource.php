@@ -5,17 +5,23 @@ namespace App\Filament\Resources;
 use App\Filament\Resources\RoleResource\Pages;
 use App\Filament\Resources\RoleResource\RelationManagers;
 use App\Models\Role;
+use App\Models\Shop;
 use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
+use Illuminate\Filesystem\Filesystem;
 
 class RoleResource extends Resource
 {
     protected static ?string $model = Role::class;
 
     protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
+
+    protected static array $exclude = [
+        Shop::class
+    ];
 
     public static function getNavigationGroup(): ?string
     {
@@ -43,14 +49,22 @@ class RoleResource extends Resource
 
     public static function permissionsSchemaSection(): array
     {
-        $prefixes = collect(config('permissions.prefixes'));
+        $permissons = collect([
+            'view_any',
+            'view',
+            'create',
+            'update',
+            'restore',
+            'delete',
+            'force_delete',
+        ]);
         $inputs = [];
-
-        foreach (config('permissions.models') as $model) {
+        $models = array_diff(self::getModels(), self::$exclude);
+        foreach ($models as $model) {
             $model = str($model)->explode('\\')->last();
             $model = str($model)->snake();
 
-            $options = $prefixes->flatMap(fn($prefix) => ["$model:$prefix" => str($prefix)->headline()]);
+            $options = $permissons->flatMap(fn($prefix) => ["$model:$prefix" => str($prefix)->headline()]);
 
             $inputs[] = Forms\Components\CheckboxList::make(str($model)->snake())
                 ->options($options->toArray())
@@ -61,6 +75,28 @@ class RoleResource extends Resource
         }
 
         return $inputs;
+    }
+
+    public static function getModels()
+    {
+        $modelClasses = [];
+
+        // Specify the directory where your models are located
+        $modelsDirectory = app_path('Models'); // Change this path as needed
+
+        $filesystem = app(Filesystem::class);
+        $files = $filesystem->allFiles($modelsDirectory);
+
+        foreach ($files as $file) {
+            $namespace = 'App\\Models';
+            $class = $namespace . '\\' . $file->getBasename('.php');
+
+            if (class_exists($class) && is_subclass_of($class, 'Illuminate\Database\Eloquent\Model')) {
+                $modelClasses[] = $class;
+            }
+        }
+
+        return $modelClasses;
     }
 
     public static function table(Table $table): Table

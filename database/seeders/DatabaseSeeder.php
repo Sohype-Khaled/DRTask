@@ -39,9 +39,8 @@ class DatabaseSeeder extends Seeder
 
         $user->assignRole($role);
 
-        $this->call([
-            PermissionsSeeder::class,
-        ]);
+        \Artisan::call('app:sync-perms');
+
 
         $role->syncPermissions(Permission::pluck('id'));
     }
