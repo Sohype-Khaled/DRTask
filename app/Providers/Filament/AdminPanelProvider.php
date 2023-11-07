@@ -2,7 +2,6 @@
 
 namespace App\Providers\Filament;
 
-use Althinect\FilamentSpatieRolesPermissions\FilamentSpatieRolesPermissionsPlugin;
 use App\Filament\Pages\Tenancy\EditShopProfile;
 use App\Filament\Pages\Tenancy\RegisterShop;
 use App\Models\Shop;
@@ -29,7 +28,7 @@ class AdminPanelProvider extends PanelProvider
         return $panel
             ->default()
             ->id('admin')
-            ->path('')
+            ->path('admin')
             ->login()
             ->registration()
             ->passwordReset()
@@ -38,9 +37,7 @@ class AdminPanelProvider extends PanelProvider
             ->tenant(Shop::class, slugAttribute: 'slug', ownershipRelationship: 'owner')
             ->tenantRegistration(RegisterShop::class)
             ->tenantProfile(EditShopProfile::class)
-            ->colors([
-                'primary' => Color::Amber,
-            ])
+            ->colors(['primary' => Color::Amber])
             ->discoverResources(in: app_path('Filament/Resources'), for: 'App\\Filament\\Resources')
             ->discoverPages(in: app_path('Filament/Pages'), for: 'App\\Filament\\Pages')
             ->pages([
@@ -62,8 +59,9 @@ class AdminPanelProvider extends PanelProvider
                 DisableBladeIconComponents::class,
                 DispatchServingFilamentEvent::class,
             ])
-            ->authMiddleware([
-                Authenticate::class,
+            ->authMiddleware([Authenticate::class])
+            ->plugins([
+                \ChrisReedIO\Socialment\SocialmentPlugin::make(),
             ]);
     }
 }
