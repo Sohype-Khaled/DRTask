@@ -23,7 +23,6 @@ class RegisterShop extends RegisterTenant
                         Forms\Components\TextInput::make('shop-slug')
                             ->label('Select Shop')
                             ->maxLength(255)
-                            ->required()
                             ->requiredWithout('name,slug')
                     ]),
 
