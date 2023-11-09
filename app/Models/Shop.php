@@ -14,6 +14,11 @@ class Shop extends Model
 
     protected $guarded = [];
 
+    public function getRouteKeyName(): string
+    {
+        return 'slug';
+    }
+
     public function members(): BelongsToMany
     {
         return $this->belongsToMany(User::class);
