@@ -9,9 +9,11 @@ use Filament\Panel;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Hash;
 use Jeffgreco13\FilamentBreezy\Traits\TwoFactorAuthenticatable;
 use Laravel\Sanctum\HasApiTokens;
 use Spatie\Permission\Traits\HasRoles;
@@ -70,5 +72,30 @@ class User extends Authenticatable implements FilamentUser, HasTenants
     public function getTenants(Panel $panel): array|Collection
     {
         return $this->shops;
+    }
+
+    public function passwordHistories(): HasMany
+    {
+        return $this->hasMany(PasswordHistory::class);
+    }
+
+    public function addToPasswordHistory($hashedPassword)
+    {
+        $this->passwordHistories()->create([
+            'hashed_password' => $hashedPassword,
+        ]);
+    }
+
+    public function isPasswordInHistory($hashedPassword)
+    {
+        $passwordHistories = $this->passwordHistories()->get();
+
+        foreach ($passwordHistories as $history) {
+            if (Hash::check($hashedPassword, $history->hashed_password)) {
+                return true;
+            }
+        }
+
+        return false;
     }
 }

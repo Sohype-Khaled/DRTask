@@ -23,7 +23,8 @@ class AuthController extends Controller
             return $this->error('Invalid credentials', 401);
 
         if ($user && Auth::attempt($request->only('email', 'password'))) {
-
+            $user->current_password_count++;
+            $user->save();
             return $this->getTokenResponse($shop, $user, 'User logged in successfully', 200);
         } else {
             return $this->error('Invalid credentials', 401);
@@ -50,11 +51,15 @@ class AuthController extends Controller
                 return $this->error('User already exists', 422);
 
         } else {
+            $passwordRules = config('password.strong_password_rules');
+            $passwordRules[] = 'confirmed';
             $this->validate($request, [
                 "name" => "required|string|max:255",
                 "email" => "required|string|email|max:255|unique:users,email",
-                "password" => "required|string|min:8|confirmed",
+                "password" => $passwordRules,
             ]);
+            $data = $request->all();
+            $data['password_change_required_at'] = now()->addDays(config('password.password_change_days'));
 
             $user = User::create($request->all());
 

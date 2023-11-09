@@ -64,5 +64,7 @@ class Kernel extends HttpKernel
         'signed' => \App\Http\Middleware\ValidateSignature::class,
         'throttle' => \Illuminate\Routing\Middleware\ThrottleRequests::class,
         'verified' => \Illuminate\Auth\Middleware\EnsureEmailIsVerified::class,
+        'password.time_expiration' => \App\Http\Middleware\CheckAPIPaswordTimeExpiration::class,
+        'password.count_expiration'=> \App\Http\Middleware\CheckAPIPasswordUsageCount::class,
     ];
 }
